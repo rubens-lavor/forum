@@ -25,7 +25,7 @@ class TopicoController(private val topicoService: TopicoService) {
     }
 
     @PostMapping
-    fun cadratrar(@RequestBody dto: NovoTopicoForm){
+    fun cadrastrar(@RequestBody dto: NovoTopicoForm){
         topicoService.cadrastrar(dto)
     }
 }

@@ -2,6 +2,8 @@ package br.com.alura.forum.service
 
 import br.com.alura.forum.dto.NovoTopicoForm
 import br.com.alura.forum.dto.TopicoView
+import br.com.alura.forum.mapper.TopicoFormMapper
+import br.com.alura.forum.mapper.TopicoViewMapper
 import br.com.alura.forum.model.Curso
 import br.com.alura.forum.model.Topico
 import br.com.alura.forum.model.Usuario
@@ -10,8 +12,8 @@ import org.springframework.stereotype.Service
 @Service
 class TopicoService(
     private val topicos: MutableList<Topico>,
-    private val cursoService: CursoService,
-    private val usuarioService: UsuarioService
+    private val topicoViewMapper:TopicoViewMapper,
+    private val topicoFormMapper: TopicoFormMapper
 ) {
 
     init {
@@ -35,40 +37,18 @@ class TopicoService(
 
     fun listar(): List<TopicoView> {
         return topicos.map { topico: Topico ->
-            with(topico) {
-                TopicoView(
-                    id = id,
-                    titulo = titulo,
-                    mensagem = mensagem,
-                    dataCriacao = dataCriacao,
-                    status = status
-                )
-            }
+            topicoViewMapper.map(topico)
         }
     }
 
     fun buscarPorId(id: Long): TopicoView {
         val topico = topicos.filter { it.id == id }.get(0)
-
-        return with(topico) {
-            TopicoView(
-                id = id,
-                titulo = titulo,
-                mensagem = mensagem,
-                dataCriacao = dataCriacao,
-                status = status
-            )
-        }
+        return topicoViewMapper.map(topico)
     }
 
     fun cadrastrar(dto: NovoTopicoForm) {
-        val topico = Topico(
-            id = topicos.size.inc().toLong(),
-            titulo = dto.titulo,
-            mensagem = dto.mensagem,
-            curso = cursoService.buscarPorId(dto.idCurso),
-            autor = usuarioService.buscarPorId(dto.idAutor)
-        )
+        val topico = topicoFormMapper.map(dto)
+        topico.id = topicos.size.inc().toLong()
         topicos.add(topico)
     }
 
