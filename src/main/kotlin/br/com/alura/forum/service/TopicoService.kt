@@ -1,6 +1,7 @@
 package br.com.alura.forum.service
 
-import br.com.alura.forum.dto.NovoTopicoDto
+import br.com.alura.forum.dto.NovoTopicoForm
+import br.com.alura.forum.dto.TopicoView
 import br.com.alura.forum.model.Curso
 import br.com.alura.forum.model.Topico
 import br.com.alura.forum.model.Usuario
@@ -32,15 +33,35 @@ class TopicoService(
         topicos.add(topico)
     }
 
-    fun listar(): List<Topico> {
-        return topicos
+    fun listar(): List<TopicoView> {
+        return topicos.map { topico: Topico ->
+            with(topico) {
+                TopicoView(
+                    id = id,
+                    titulo = titulo,
+                    mensagem = mensagem,
+                    dataCriacao = dataCriacao,
+                    status = status
+                )
+            }
+        }
     }
 
-    fun buscarPorId(id: Long): Topico {
-        return topicos.filter { it.id == id }.get(0)
+    fun buscarPorId(id: Long): TopicoView {
+        val topico = topicos.filter { it.id == id }.get(0)
+
+        return with(topico) {
+            TopicoView(
+                id = id,
+                titulo = titulo,
+                mensagem = mensagem,
+                dataCriacao = dataCriacao,
+                status = status
+            )
+        }
     }
 
-    fun cadrastrar(dto: NovoTopicoDto) {
+    fun cadrastrar(dto: NovoTopicoForm) {
         val topico = Topico(
             id = topicos.size.inc().toLong(),
             titulo = dto.titulo,
