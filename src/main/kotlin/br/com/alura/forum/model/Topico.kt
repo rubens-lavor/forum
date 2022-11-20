@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 
 data class Topico (
     var id: Long? = null,
-    val titulo: String,
-    val mensagem: String,
+    var titulo: String,
+    var mensagem: String,
     val dataCriacao: LocalDateTime = LocalDateTime.now(),
     val curso: Curso,
     val autor: Usuario,
