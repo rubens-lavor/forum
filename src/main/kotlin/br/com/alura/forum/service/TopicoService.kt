@@ -3,6 +3,7 @@ package br.com.alura.forum.service
 import br.com.alura.forum.dto.AtualizacaoTopicoForm
 import br.com.alura.forum.dto.NovoTopicoForm
 import br.com.alura.forum.dto.TopicoView
+import br.com.alura.forum.exception.NotFoundException
 import br.com.alura.forum.mapper.TopicoFormMapper
 import br.com.alura.forum.mapper.TopicoViewMapper
 import br.com.alura.forum.model.Curso
@@ -43,7 +44,9 @@ class TopicoService(
     }
 
     fun buscarPorId(id: Long): TopicoView {
-        val topico = topicos.first { it.id == id }
+        val topico = topicos
+            .firstOrNull { it.id == id }
+            ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
         return topicoViewMapper.map(topico)
     }
 
@@ -57,7 +60,10 @@ class TopicoService(
 
     fun atualizar(form: AtualizacaoTopicoForm): TopicoView {
         val id = form.id
-        val topico = topicos.first { it.id == id }
+        val topico = topicos
+            .firstOrNull { it.id == id }
+            ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
+
         topicos.remove(topico)
 
         topico.titulo = form.titulo
@@ -68,7 +74,11 @@ class TopicoService(
     }
 
     fun deletar(id: Long) {
-        topicos.first { it.id == id }.also { topicos.remove(it) }
+        topicos
+            .firstOrNull { it: Topico -> it.id == id }
+            .also { it: Topico? ->
+                topicos.remove(it)
+            } ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
     }
 
 }
