@@ -9,76 +9,69 @@ import br.com.alura.forum.mapper.TopicoViewMapper
 import br.com.alura.forum.model.Curso
 import br.com.alura.forum.model.Topico
 import br.com.alura.forum.model.Usuario
+import br.com.alura.forum.repository.CursoRepository
+import br.com.alura.forum.repository.TopicoRepository
+import br.com.alura.forum.repository.UsuarioRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
 class TopicoService(
-    private val topicos: MutableList<Topico>,
+    private val topicoRepository: TopicoRepository,
     private val topicoViewMapper:TopicoViewMapper,
-    private val topicoFormMapper: TopicoFormMapper
+    private val topicoFormMapper: TopicoFormMapper,
+    val cursoRepository: CursoRepository,
+    val usuarioRepository: UsuarioRepository
 ) {
 
-    init {
-        val topico = Topico(
-            id = 1,
-            titulo = "Duvida kotlin",
-            mensagem = "Variáveis no kotlin",
-            curso = Curso(
-                id = 1,
-                nome = "kotlin",
-                categoria = "Programação"
-            ),
-            autor = Usuario(
-                id = 1,
-                nome = "josé",
-                email = "jose@mail.com"
-            )
-        )
-        topicos.add(topico)
-    }
-
     fun listar(): List<TopicoView> {
-        return topicos.map { topico: Topico ->
+        return topicoRepository.findAll().map { topico: Topico ->
             topicoViewMapper.map(topico)
         }
     }
 
     fun buscarPorId(id: Long): TopicoView {
-        val topico = topicos
-            .firstOrNull { it.id == id }
-            ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
+
+        val topico = buscaTopico(id)
+
         return topicoViewMapper.map(topico)
     }
 
     fun cadastrar(form: NovoTopicoForm): TopicoView {
         val topico = topicoFormMapper.map(form)
-        topico.id = topicos.size.inc().toLong()
-        topicos.add(topico)
-
+        topicoRepository.save(topico)
         return topicoViewMapper.map(topico)
     }
 
     fun atualizar(form: AtualizacaoTopicoForm): TopicoView {
         val id = form.id
-        val topico = topicos
-            .firstOrNull { it.id == id }
-            ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
-
-        topicos.remove(topico)
-
+        val topico = buscaTopico(id)
         topico.titulo = form.titulo
         topico.mensagem = form.mensagem
-        topicos.add(topico)
+
+        /*  não precisa salvar! ao carregar uma entidade via banco de dados, qualquer alteração em seus atributos,
+         *  o JPA dispara um update quando a transação for comitada.
+         * */
 
         return topicoViewMapper.map(topico)
     }
 
     fun deletar(id: Long) {
-        topicos
-            .firstOrNull { it: Topico -> it.id == id }
-            .also { it: Topico? ->
-                topicos.remove(it)
-            } ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
+        topicoRepository.deleteById(id)
+    }
+
+    private fun buscaTopico(id: Long): Topico {
+        return topicoRepository
+            .findByIdOrNull(id)
+            ?: throw NotFoundException("Tópico não encontrado pelo id: $id")
+    }
+
+    fun listarCursos(): List<Curso> {
+        return cursoRepository.findAll()
+    }
+
+    fun listarUsuarios(): List<Usuario> {
+        return usuarioRepository.findAll()
     }
 
 }
