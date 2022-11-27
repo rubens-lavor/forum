@@ -6,6 +6,7 @@ import br.com.alura.forum.dto.TopicoView
 import br.com.alura.forum.service.TopicoService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -21,7 +22,11 @@ class TopicoController(private val topicoService: TopicoService) {
     @GetMapping
     fun listar(
         @RequestParam(required = false) nomeCurso: String?,
-        @PageableDefault(size = 5, page = 0) paginacao: Pageable
+        @PageableDefault(
+            size = 5,
+            sort = ["dataCriacao"],
+            direction = Sort.Direction.DESC
+        ) paginacao: Pageable
     ): Page<TopicoView> {
         return topicoService.listar(nomeCurso, paginacao)
     }
