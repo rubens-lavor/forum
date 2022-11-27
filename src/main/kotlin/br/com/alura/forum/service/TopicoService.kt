@@ -12,6 +12,8 @@ import br.com.alura.forum.model.Usuario
 import br.com.alura.forum.repository.CursoRepository
 import br.com.alura.forum.repository.TopicoRepository
 import br.com.alura.forum.repository.UsuarioRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -24,11 +26,14 @@ class TopicoService(
     val usuarioRepository: UsuarioRepository
 ) {
 
-    fun listar(nomeCurso: String?): List<TopicoView> {
-        val topicos:List<Topico> = if (nomeCurso == null) {
-            topicoRepository.findAll()
+    fun listar(
+        nomeCurso: String?,
+        paginacao: Pageable
+    ): Page<TopicoView> {
+        val topicos: Page<Topico> = if (nomeCurso == null) {
+            topicoRepository.findAll(paginacao)
         } else {
-            topicoRepository.findByCursoNome(nomeCurso)
+            topicoRepository.findByCursoNome(nomeCurso, paginacao)
         }
         return topicos.map { topico: Topico ->
             topicoViewMapper.map(topico)
