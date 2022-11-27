@@ -3,8 +3,6 @@ package br.com.alura.forum.controller
 import br.com.alura.forum.dto.AtualizacaoTopicoForm
 import br.com.alura.forum.dto.NovoTopicoForm
 import br.com.alura.forum.dto.TopicoView
-import br.com.alura.forum.model.Curso
-import br.com.alura.forum.model.Usuario
 import br.com.alura.forum.service.TopicoService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,8 +16,8 @@ import javax.validation.Valid
 class TopicoController(private val topicoService: TopicoService) {
 
     @GetMapping
-    fun listar(): List<TopicoView> {
-        return topicoService.listar()
+    fun listar(@RequestParam(required = false) nomeCurso: String?): List<TopicoView> {
+        return topicoService.listar(nomeCurso)
     }
 
     @GetMapping("/{id}")
